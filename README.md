@@ -1,6 +1,6 @@
 # DataSwitcher
 
-ATTENTION the project is being finalized  
+ATTENTION THE PROJECT IS IN THE STAGE OF DEVELOPMENT
 DataSwitcher is a program for working with csv, excel (xlsx), txt files and for converting files to other extensions
 
 # Download
