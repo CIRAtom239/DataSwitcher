@@ -9,4 +9,4 @@ git clone https://github.com/CIRAtom239/DataSwitcher && cd DataSwitcher
 pip3 install -r requirements.txt  
 python dataswitcher.py  
 
-👽
+👽  
