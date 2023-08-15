@@ -5,7 +5,7 @@ DataSwitcher is a program for working with csv, excel (xlsx), txt files and for 
 
 # Download
 
-git clone https://github.com/CIRAtom239/DataSwitcher && cd DataSwitcher  
+git clone https://github.com/CIRAtom239/DataSwitcher    
 pip3 install -r requirements.txt  
 python dataswitcher.py  
 
