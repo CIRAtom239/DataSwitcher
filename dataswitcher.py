@@ -1,5 +1,7 @@
-from openpyxl import load_workbook
 import pandas as pd
+import sqlite3
+import random
+import time
 import sys
 import os
 
@@ -10,11 +12,51 @@ def process_csv(filename):
                      '2) - добавление\n'
                      '3) - удаление\n'
                      '4) - разделить файл\n'
-                     '5) - переименовать\n'))
+                     '5) - переименовать\n'
+                     '6) - объединение\n'))
 
     if command == 1:
-        name_file = input('Введите название файла: ')
-        pd.read_csv(name_file, delimiter=',')
+        pd.set_option("display.max.columns", 100)
+        pd.set_option("display.max.rows", 100)
+
+        df = pd.read_csv(filename, delimiter=',')
+        print(df)
+
+    elif command == 2:
+        command2 = int(input('Введите вы хотите добавить строку или столбец (1,2): '))
+
+        if command2 == 1:
+            df = pd.read_csv(filename)
+            for dataframe in df.columns():
+                examination = dataframe.dtypes
+
+                print(examination)
+
+                if examination == 'int64':
+                    meaning_int = int(input('Введите новое значение в эту колонку: '))
+                    df[dataframe] = df[meaning_int]
+                    new_dataframe_int = pd.DataFrame()
+
+                elif examination == 'object':
+                    meaning_object = input('Введите новое значение в эту колонку: ')
+
+                elif examination == 'float64':
+                    meaning_float = input('Введите новое значение в эту колонку: ')
+
+        elif command2 == 2:
+            command3 = int(input('Введите вы хотите добавить один столбец или несколько (1,2): '))
+            if command3 == 1:
+                df = pd.read_csv(filename)
+                player_vals = input('Введите название новой колонки: ')
+                df.insert(loc=0, column='player', value=player_vals)
+            elif command3 == 2:
+                kol_new_column = int(input('Введите количество новых колонок: '))
+                a = []
+                df = pd.read_csv(filename)
+                for i in range(1,kol_new_column):
+                    player_vals = input('Введите название новой колонки: ')
+                    a.append(player_vals)
+                df.insert(loc=0, column=a)
 
     elif command == 3:
         mode2 = int(input('Вы хотите удалить столбец или строчку (1,2): '))
@@ -37,7 +79,7 @@ def process_csv(filename):
                 print(df.columns)
                 print(df.head(5))
 
-                cols = input('Введите столбцы, которые хотите удалить (через пробел): ').split()
+                cols = input('Введите столбцы, которые хотите удалить: ')
 
                 for col in cols:
                     if col in df.columns:
@@ -45,6 +87,10 @@ def process_csv(filename):
 
                 df.to_csv(filename, sep=";")
                 print(df)
+
+        elif mode2 == 2:
+            print('???')
+
     elif command == 4:
         mode = int(input('Введите режим (1 - ручной / 2 - автоматический): '))
         if mode == 1:
@@ -77,7 +123,9 @@ def process_csv(filename):
             df = pd.read_csv(filename, on_bad_lines='skip')
             print(len(df))
 
-            chunk_size = 1000000
+            chunk_size = int(input('Введите оптимальный chunk_size: '))
+
+            j = input('Введите название нового файла: ')
 
             num_chunk_size = len(df) // chunk_size + 1
             print(num_chunk_size)
@@ -86,7 +134,7 @@ def process_csv(filename):
                 start_index = i * chunk_size
                 end_index = (i + 1) * chunk_size
                 chunk = df[start_index:end_index]
-                chunk.to_csv(f'party_zdravcity_{i}.csv', index=False)
+                chunk.to_csv(f'{j}_party_{i}.csv', index=False)
             print('Все успешно сохранилось')
 
     elif command == 5:
@@ -97,6 +145,41 @@ def process_csv(filename):
         df_rename = df.rename(columns={column: new_column})
         df2 = pd.DataFrame(df_rename)
         df2.to_csv(filename)
+
+    elif command == 6:
+        command_union = int(input('Вы хотите объеденить только два файла или несколько (1,2): '))
+        if command_union == 1:
+            df1 = input('Введите первый файл: ')
+            df2 = input('Введите второй файл: ')
+
+            a = pd.read_csv(df1)
+            b = pd.read_csv(df2)
+
+            print(df1)
+            print(df2)
+
+            df3 = pd.concat([a, b])
+            df3.to_csv('new_party_file.csv', index=False)
+            print('все успешно объединено')
+
+        elif command_union == 2:
+            col_files = int(input('Введите кол-во файлов: '))
+
+            files = []
+
+            for col in range(1,col_files):
+                a = input('Введите название файла: ')
+                files.append(a)
+
+            for file in files:
+                df = pd.read_csv(file)
+
+                df3 = pd.concat([df], ignore_index=True)
+                df3.to_csv(f'party_new_file_{random.randint(1,201)}.csv', index=False)
+                print('все успешно объединено')
+
+        else:
+            print('Извините но такого нет')
 
     elif command == 'quit':
         print('Вы успешно вышли из программы')
@@ -130,12 +213,14 @@ def process_xlsx(filename):
     elif mode == 4:
         n = int(input('Введите до скольки нужно разделить файл: '))
 
+        new_filename = input('Введите новое название файла: ')
+
         df = pd.read_excel(filename)
         read = df.head(n)
         print(read)
 
         df1 = pd.DataFrame(read)
-        df1.to_csv('new_file.xlsx')
+        df1.to_csv(f'{new_filename}')
 
         df.drop(labels=[read], axis=0)
 
@@ -180,7 +265,7 @@ def process_txt(filename):
         while True:
             file = open(f"{filename}", "r")
 
-            chunk_size = 1000000
+            chunk_size = int(input('Введите оптимальный chunk_size: '))
 
             num_chunk_size = len(open(f'{filename}').readlines()) // chunk_size + 1
             print(num_chunk_size)
@@ -226,11 +311,31 @@ def process_conversion(convertation_file):
         read_file.to_csv(f'{delimiter}.csv', index=None, header=True)
         os.remove(namefile)
 
+    elif convertation_file == 'csv_to_sql':
+        input_name_file_csv = input('Введите название файла: ')
+
+        input_name_file_sql = input('Введите название файла: ')
+
+        conn = sqlite3.connect(input_name_file_sql)
+
+        df = pd.read_csv(input_name_file_csv)
+        df.to_sql('contact', conn, if_exists='append', index=False)
+
+    elif convertation_file == 'sql_to_csv':
+        print('???')
+
+
+def process_fast_search(filename, search_term):
+    with open(filename, 'r', encoding='utf-8') as file:
+        for line in file:
+            if search_term in line:
+                return line
+
 
 def converter():
     print('программа converter предназначена для работы с файлами и всякими расширениями')
 
-    extension = input('Введите с каким расширением вы хотите работать (csv, xlsx, txt, con): ')
+    extension = input('Введите с каким расширением вы хотите работать (csv, xlsx, txt, con, fast_search): ')
 
     if extension == 'csv':
         filename = input('Введите название файла: ')
@@ -247,6 +352,19 @@ def converter():
     elif extension == 'con':
         convertation_file = input('Введите из какого файла в какой вы хотите переконвертировать: ')
         process_conversion(convertation_file)
+
+    elif extension == 'fast_search':
+        filee = input('Введите название файла: ')
+
+        word = input('Введите данные которые хотите найти: ')
+
+        start_time = time.time()
+
+        for files in filee:
+            result = process_fast_search(files, word)
+            print(result)
+
+            print("--- %s seconds ---" % (time.time() - start_time))
 
     elif extension == 'quit':
         sys.exit()
