@@ -1,6 +1,5 @@
 # DataSwitcher
 
-ATTENTION THE PROJECT IS IN THE STAGE OF DEVELOPMENT   
 DataSwitcher - this program is designed to work with large csv, txt files, etc.
 
 # Download
