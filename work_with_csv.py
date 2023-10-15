@@ -55,7 +55,7 @@ def process_csv(filename):
                 df.insert(loc=0, column=a)
 
     elif command == 3:
-        mode2 = int(input('Вы хотите удалить столбец или строчку (1,2): '))
+        mode2 = int(input('Вы хотите удалить столбец, строчку или дубликаты (1,2,3): '))
         if mode2 == 1:
             mode3 = int(input('Вы хотите удалить один столбец или сразу несколько (1,2): '))
             if mode3 == 1:
@@ -86,6 +86,12 @@ def process_csv(filename):
 
         elif mode2 == 2:
             print('???')
+
+        elif mode2 == 3:
+            col = input('Введите название колонки из которой нужно удалить: ')
+
+            df = pd.read_csv(filename, on_bad_lines='skip', sep=";", index_col=0)
+            df.duplicated(subset=[col]).to_csv(f'new_{filename}')
 
     elif command == 4:
         mode = int(input('Введите режим (1 - ручной / 2 - автоматический): '))
